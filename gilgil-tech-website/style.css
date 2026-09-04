@@ -1,168 +1,312 @@
+/* ================================
+   CrownV Tech - Main Styles
+   ================================ */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}
-
-html {
     scroll-behavior: smooth;
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #080611;
+    color: #ffffff;
     line-height: 1.6;
-    background: #0b0b12;
-    color: white;
 }
 
+/* ================================
+   Navigation
+   ================================ */
+
 header {
-    background: #11111c;
-    padding: 20px 8%;
+    background: #0d0918;
+    border-bottom: 1px solid #24134a;
     position: sticky;
     top: 0;
     z-index: 1000;
 }
 
 nav {
+    max-width: 1100px;
+    margin: auto;
+    padding: 18px 25px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-nav h1 {
-    color: #9b5cff;
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #a855f7;
 }
 
-.nav-links {
+nav ul {
+    list-style: none;
     display: flex;
     gap: 25px;
 }
 
-.nav-links a {
-    color: white;
+nav ul li a {
+    color: #ffffff;
     text-decoration: none;
-    font-weight: bold;
+    font-size: 15px;
+    transition: 0.3s;
 }
 
-.nav-links a:hover {
-    color: #9b5cff;
+nav ul li a:hover {
+    color: #a855f7;
 }
+
+/* ================================
+   Hero Section
+   ================================ */
 
 .hero {
-    min-height: 80vh;
+    min-height: 90vh;
     display: flex;
+    justify-content: center;
     align-items: center;
-    padding: 80px 8%;
-    background: linear-gradient(135deg, #0b0b12, #21103d);
+    text-align: center;
+    padding: 60px 20px;
+    background:
+        radial-gradient(circle at center, #241044 0%, #080611 55%);
 }
 
-.hero div {
-    max-width: 700px;
+.hero-content {
+    max-width: 850px;
 }
 
-.tag {
-    color: #9b5cff;
-    font-weight: bold;
-    margin-bottom: 15px;
-}
-
-.hero h2 {
-    font-size: 60px;
+.hero-content h1 {
+    font-size: 58px;
+    margin: 15px 0;
     line-height: 1.1;
-    margin-bottom: 20px;
 }
 
-.hero p {
+.hero-content p {
+    color: #c7c3d1;
     font-size: 18px;
-    color: #cccccc;
-    margin-bottom: 30px;
+    max-width: 700px;
+    margin: 15px auto;
 }
+
+.hero-tagline,
+.crown-tagline {
+    color: #a855f7 !important;
+    font-weight: bold;
+}
+
+.hero-small {
+    color: #a855f7 !important;
+    font-size: 14px !important;
+    letter-spacing: 3px;
+    font-weight: bold;
+}
+
+/* ================================
+   Buttons
+   ================================ */
 
 .button {
     display: inline-block;
-    background: #9b5cff;
-    color: white;
+    margin-top: 25px;
     padding: 13px 25px;
-    border-radius: 8px;
+    background: #8b5cf6;
+    color: white;
     text-decoration: none;
+    border-radius: 8px;
     font-weight: bold;
+    transition: 0.3s;
 }
 
 .button:hover {
-    background: #7c3aed;
+    background: #a855f7;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(168, 85, 247, 0.25);
 }
 
-.section {
-    padding: 80px 8%;
+/* ================================
+   General Sections
+   ================================ */
+
+section {
+    padding: 80px 20px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+}
+
+section h2 {
     text-align: center;
+    font-size: 36px;
+    margin-bottom: 45px;
+    color: #ffffff;
 }
 
-.section h2 {
-    font-size: 38px;
-    margin-bottom: 40px;
+/* ================================
+   Services
+   ================================ */
+
+.services {
+    background: #0b0813;
 }
 
-.cards {
+.service-grid {
+    max-width: 1100px;
+    margin: auto;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 25px;
 }
 
-.card {
-    background: #151522;
+.service-card {
+    background: #120d20;
+    border: 1px solid #28154a;
     padding: 30px;
     border-radius: 12px;
-    border: 1px solid #29293a;
+    text-align: center;
+    transition: 0.3s;
 }
 
-.card h3 {
-    color: #9b5cff;
+.service-card:hover {
+    transform: translateY(-7px);
+    border-color: #8b5cf6;
+    box-shadow: 0 15px 35px rgba(139, 92, 246, 0.12);
+}
+
+.service-card h3 {
+    color: #a855f7;
     margin-bottom: 15px;
 }
 
-.card p,
-.about p,
-.contact p {
-    color: #cccccc;
+.service-card p {
+    color: #c7c3d1;
 }
+
+/* ================================
+   Projects
+   ================================ */
+
+.projects {
+    background: #080611;
+}
+
+.project-grid {
+    max-width: 1100px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+}
+
+.project-card {
+    background: #120d20;
+    border: 1px solid #28154a;
+    padding: 30px;
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+.project-card:hover {
+    transform: translateY(-7px);
+    border-color: #8b5cf6;
+}
+
+.project-card h3 {
+    color: #a855f7;
+    margin-bottom: 12px;
+}
+
+.project-card p {
+    color: #c7c3d1;
+    margin-bottom: 10px;
+}
+
+.project-card .button {
+    margin-top: 15px;
+}
+
+/* ================================
+   About
+   ================================ */
 
 .about {
-    background: #11111c;
+    background: #0b0813;
 }
 
-.about p {
-    max-width: 700px;
+.about-content {
+    max-width: 800px;
     margin: auto;
+    text-align: center;
 }
+
+.about-content p {
+    color: #c7c3d1;
+    font-size: 17px;
+}
+
+/* ================================
+   Contact
+   ================================ */
 
 .contact {
-    background: #21103d;
+    background: #080611;
+    text-align: center;
 }
+
+.contact p {
+    color: #c7c3d1;
+    margin-bottom: 10px;
+}
+
+/* ================================
+   Footer
+   ================================ */
 
 footer {
-    background: #08080d;
+    background: #05040a;
+    border-top: 1px solid #24134a;
     text-align: center;
-    padding: 25px;
-    color: #999;
+    padding: 25px 20px;
+    color: #8f899d;
+    font-size: 14px;
 }
 
-@media (max-width: 768px) {
+/* ================================
+   Mobile Responsive Design
+   ================================ */
+
+@media (max-width: 800px) {
+
     nav {
         flex-direction: column;
         gap: 15px;
     }
 
-    .nav-links {
-        gap: 12px;
+    nav ul {
+        gap: 15px;
         flex-wrap: wrap;
         justify-content: center;
     }
 
-    .hero h2 {
-        font-size: 42px;
+    .hero-content h1 {
+        font-size: 40px;
     }
 
-    .cards {
+    .service-grid,
+    .project-grid {
         grid-template-columns: 1fr;
+    }
+
+    section {
+        padding: 60px 20px;
+    }
+
+    section h2 {
+        font-size: 30px;
     }
 }
