@@ -307,3 +307,106 @@ footer {
         width: 100%;
     }
 }
+/* ================================
+   CrownV Tech - Brand Upgrade
+   ================================ */
+
+/* Better navigation */
+header {
+    backdrop-filter: blur(10px);
+    background: rgba(17, 17, 28, 0.92);
+    border-bottom: 1px solid #29293a;
+}
+
+nav h1 {
+    font-size: 24px;
+    letter-spacing: 1px;
+}
+
+/* Hero visual improvement */
+.hero {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: "";
+    position: absolute;
+    width: 350px;
+    height: 350px;
+    border-radius: 50%;
+    background: rgba(155, 92, 255, 0.12);
+    filter: blur(80px);
+    top: 10%;
+    right: 5%;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* Section headings */
+.section h2 {
+    color: white;
+    letter-spacing: 1px;
+}
+
+/* Better cards */
+.card {
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: #9b5cff;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: 0.3s;
+}
+
+.card:hover::before {
+    transform: scaleX(1);
+}
+
+/* Make buttons feel more modern */
+.button {
+    box-shadow: 0 5px 20px rgba(155, 92, 255, 0.15);
+}
+
+.button:hover {
+    box-shadow: 0 8px 25px rgba(155, 92, 255, 0.3);
+}
+
+/* Contact section */
+.contact {
+    position: relative;
+    overflow: hidden;
+}
+
+.contact h2 {
+    font-size: 42px;
+}
+
+/* Selection color */
+::selection {
+    background: #9b5cff;
+    color: white;
+}
+
+/* Better mobile spacing */
+@media (max-width: 768px) {
+    .contact h2 {
+        font-size: 32px;
+    }
+
+    nav h1 {
+        font-size: 22px;
+    }
+}
