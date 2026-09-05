@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://vincent2092433.github.io/crownv-tech/sitemap.xml
