@@ -410,3 +410,184 @@ nav h1 {
         font-size: 22px;
     }
 }
+
+.brand {
+    display: flex;
+    align-items: center;
+  gap: 10px;
+}
+
+.brand img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+/* ================================
+   CrownV Tech - Tech Animations
+   ================================ */
+
+.card {
+    transition:
+        transform 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    border-color: #9b5cff;
+    box-shadow:
+        0 0 15px rgba(155, 92, 255, 0.25),
+        0 15px 35px rgba(0, 0, 0, 0.35);
+}
+
+.button {
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        background 0.25s ease;
+}
+
+.button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 20px rgba(155, 92, 255, 0.4);
+}
+
+/* Smooth section appearance */
+.section {
+    animation: sectionFade 0.8s ease;
+}
+
+@keyframes sectionFade {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+/* ================================
+   CrownV Tech - Hero Upgrade
+   ================================ */
+
+.hero h2 {
+    text-shadow: 0 0 20px rgba(155, 92, 255, 0.35);
+}
+
+.hero-content p {
+    max-width: 650px;
+}
+
+.hero-small {
+    animation: pulseText 2s infinite;
+}
+
+@keyframes pulseText {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.65;
+    }
+}
+
+.hero-buttons .button {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-buttons .button::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.12);
+    transform: skewX(-20deg);
+    transition: 0.5s;
+}
+
+.hero-buttons .button:hover::after {
+    left: 120%;
+}
+/* ================================
+   CrownV Tech - Navigation Upgrade
+   ================================ */
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand img {
+    width: 55px;
+    height: 55px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 8px rgba(155, 92, 255, 0.5));
+}
+
+.brand h1 {
+    margin: 0;
+}
+
+.nav-links a {
+    position: relative;
+    padding: 5px 0;
+}
+
+.nav-links a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    background: #9b5cff;
+    transition: width 0.3s ease;
+}
+
+.nav-links a:hover::after {
+    width: 100%;
+}
+/* ================================
+   CrownV Tech - Footer Upgrade
+   ================================ */
+
+footer {
+    border-top: 1px solid #29293a;
+    padding: 35px 8%;
+}
+
+footer p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+footer p:first-child {
+    color: #cccccc;
+}
+
+footer p:last-child {
+    color: #777;
+}
+
+footer:hover {
+    border-top-color: #9b5cff;
+}
