@@ -1,0 +1,388 @@
+"use strict";
+
+const $ = (id) => document.getElementById(id);
+const STORAGE_KEY = "crownv_shop_manager_v1";
+
+let state = loadState();
+let editingProductId = null;
+let toastTimeout;
+
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    return {
+      products: Array.isArray(saved.products) ? saved.products : [],
+      sales: Array.isArray(saved.sales) ? saved.sales : [],
+      lowStockThreshold: Number.isInteger(saved.lowStockThreshold) &&
+        saved.lowStockThreshold >= 0 && saved.lowStockThreshold <= 1000000
+        ? saved.lowStockThreshold : 5
+    };
+  } catch {
+    return { products: [], sales: [], lowStockThreshold: 5 };
+  }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    return true;
+  } catch {
+    showToast("Could not save data. Check your browser storage.");
+    return false;
+  }
+}
+
+function money(amount) {
+  return new Intl.NumberFormat("en-KE", {
+    style: "currency", currency: "KES", minimumFractionDigits: 2
+  }).format(amount);
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;",
+    '"': "&quot;", "'": "&#39;"
+  })[char]);
+}
+
+function showToast(message) {
+  const toast = $("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => toast.classList.remove("show"), 3000);
+}
+
+function navigate(page) {
+  const pages = ["dashboard", "products", "sales"];
+  if (!pages.includes(page)) return;
+
+  pages.forEach(name => {
+    $(`${name}-page`).classList.toggle("hidden", name !== page);
+  });
+
+  document.querySelectorAll(".nav-link").forEach(button => {
+    button.classList.toggle("active", button.dataset.page === page);
+  });
+
+  $("page-title").textContent = {
+    dashboard: "Dashboard",
+    products: "Products & Stock",
+    sales: "Sales & Orders"
+  }[page];
+
+  render();
+}
+
+document.querySelectorAll(".nav-link").forEach(button => {
+  button.addEventListener("click", () => navigate(button.dataset.page));
+});
+
+document.querySelectorAll("[data-go]").forEach(button => {
+  button.addEventListener("click", () => navigate(button.dataset.go));
+});
+
+function openProductDialog(product = null) {
+  editingProductId = product ? product.id : null;
+  $("dialog-title").textContent = product ? "Edit product" : "Add product";
+  $("product-name").value = product ? product.name : "";
+  $("product-category").value = product ? product.category : "Clothing";
+  $("product-price").value = product ? product.price : "";
+  $("product-stock").value = product ? product.stock : "";
+  $("product-error").textContent = "";
+  $("product-dialog").showModal();
+  $("product-name").focus();
+}
+
+function closeProductDialog() {
+  $("product-dialog").close();
+  editingProductId = null;
+}
+
+$("add-product").addEventListener("click", () => openProductDialog());
+$("quick-add").addEventListener("click", () => openProductDialog());
+$("close-dialog").addEventListener("click", closeProductDialog);
+$("cancel-dialog").addEventListener("click", closeProductDialog);
+
+$("product-dialog").addEventListener("click", event => {
+  if (event.target === $("product-dialog")) closeProductDialog();
+});
+
+$("product-form").addEventListener("submit", event => {
+  event.preventDefault();
+
+  const name = $("product-name").value.trim();
+  const category = $("product-category").value;
+  const price = Number($("product-price").value);
+  const stock = Number($("product-stock").value);
+
+  if (!name || !Number.isFinite(price) || price <= 0 ||
+      !Number.isInteger(stock) || stock < 0) {
+    $("product-error").textContent =
+      "Enter a product name, a positive price and a whole-number stock quantity.";
+    return;
+  }
+
+  const previous = editingProductId
+    ? state.products.find(product => product.id === editingProductId)
+    : null;
+
+  const product = {
+    id: editingProductId || crypto.randomUUID(),
+    name, category, price, stock,
+    sold: previous ? previous.sold : 0,
+    createdAt: previous ? previous.createdAt : new Date().toISOString()
+  };
+
+  if (previous) {
+    state.products = state.products.map(item =>
+      item.id === editingProductId ? product : item
+    );
+  } else {
+    state.products.push(product);
+  }
+
+  if (!saveState()) return;
+  closeProductDialog();
+  render();
+  showToast(previous ? "Product updated." : "Product added successfully.");
+});
+
+$("product-search").addEventListener("input", renderProducts);
+
+function renderProducts() {
+  const query = $("product-search").value.trim().toLowerCase();
+  const products = state.products.filter(product =>
+    product.name.toLowerCase().includes(query) ||
+    product.category.toLowerCase().includes(query)
+  );
+
+  $("products-table").innerHTML = products.map(product => `
+    <tr>
+      <td><strong>${escapeHTML(product.name)}</strong></td>
+      <td>${escapeHTML(product.category)}</td>
+      <td>${money(product.price)}</td>
+      <td><span class="stock-pill ${product.stock <= 5 ? "low" : ""}">${product.stock}</span></td>
+      <td>
+        <button class="action-button" data-edit="${escapeHTML(product.id)}">Edit</button>
+        <button class="action-button" data-restock="${escapeHTML(product.id)}">Restock</button>
+        <button class="action-button" data-delete="${escapeHTML(product.id)}">Delete</button>
+      </td>
+    </tr>
+  `).join("");
+
+  $("products-empty").classList.toggle("hidden", products.length > 0);
+}
+
+$("products-table").addEventListener("click", event => {
+  const editButton = event.target.closest("[data-edit]");
+  const restockButton = event.target.closest("[data-restock]");
+  const deleteButton = event.target.closest("[data-delete]");
+
+  if (editButton) {
+    const product = state.products.find(item => item.id === editButton.dataset.edit);
+    if (product) openProductDialog(product);
+  }
+
+  if (restockButton) {
+    const product = state.products.find(
+      item => item.id === restockButton.dataset.restock
+    );
+    if (!product) return;
+
+    const value = prompt(
+      `Restock ${product.name}\nCurrent stock: ${product.stock}\n\nEnter quantity to add:`
+    );
+    if (value === null) return;
+
+    const amount = Number(value);
+    if (value.trim() === "" || !Number.isSafeInteger(amount) || amount <= 0) {
+      showToast("Enter a valid whole number greater than zero.");
+      return;
+    }
+
+    if (!Number.isSafeInteger(product.stock + amount)) {
+      showToast("That quantity is too large.");
+      return;
+    }
+
+    product.stock += amount;
+    if (!saveState()) {
+      product.stock -= amount;
+      return;
+    }
+
+    render();
+    showToast(`${product.name} restocked (+${amount}).`);
+    return;
+  }
+
+  if (deleteButton) {
+    const product = state.products.find(item => item.id === deleteButton.dataset.delete);
+    if (!product) return;
+
+    const hasSales = state.sales.some(sale => sale.productId === product.id);
+    const message = hasSales
+      ? `Delete ${product.name} from the catalogue? Existing sales history will be retained.`
+      : `Delete ${product.name}?`;
+
+    if (!confirm(message)) return;
+
+    state.products = state.products.filter(item => item.id !== product.id);
+    if (!saveState()) return;
+    render();
+    showToast("Product removed.");
+  }
+});
+
+function renderSaleOptions() {
+  const select = $("sale-product");
+  const previousValue = select.value;
+  const available = state.products.filter(product => product.stock > 0);
+
+  select.innerHTML = '<option value="">Select a product</option>' +
+    available.map(product =>
+      `<option value="${escapeHTML(product.id)}">${escapeHTML(product.name)} — ${money(product.price)} (${product.stock} available)</option>`
+    ).join("");
+
+  if (available.some(product => product.id === previousValue)) {
+    select.value = previousValue;
+  }
+}
+
+$("sale-form").addEventListener("submit", event => {
+  event.preventDefault();
+
+  const product = state.products.find(item => item.id === $("sale-product").value);
+  const quantity = Number($("sale-quantity").value);
+  const payment = $("sale-payment").value;
+
+  if (!product) {
+    showToast("Please select a product.");
+    return;
+  }
+
+  if (!Number.isInteger(quantity) || quantity < 1) {
+    showToast("Enter a valid whole-number quantity.");
+    return;
+  }
+
+  if (quantity > product.stock) {
+    showToast(`Only ${product.stock} units are available.`);
+    return;
+  }
+
+  const sale = {
+    id: crypto.randomUUID(),
+    productId: product.id,
+    productName: product.name,
+    quantity,
+    unitPrice: product.price,
+    total: quantity * product.price,
+    payment,
+    date: new Date().toISOString()
+  };
+
+  product.stock -= quantity;
+  product.sold = (product.sold || 0) + quantity;
+  state.sales.unshift(sale);
+
+  if (!saveState()) {
+    state.products.find(item => item.id === product.id).stock += quantity;
+    state.products.find(item => item.id === product.id).sold -= quantity;
+    state.sales.shift();
+    return;
+  }
+
+  $("sale-quantity").value = "1";
+  render();
+  showToast(`Sale recorded: ${money(sale.total)}.`);
+});
+
+function renderSales() {
+  const rows = state.sales.map(sale => `
+    <tr>
+      <td>${escapeHTML(new Date(sale.date).toLocaleString("en-KE", {
+        dateStyle: "medium", timeStyle: "short"
+      }))}</td>
+      <td>${escapeHTML(sale.productName)}</td>
+      <td>${sale.quantity}</td>
+      <td>${money(sale.total)}</td>
+      <td>${escapeHTML(sale.payment)}</td>
+    </tr>
+  `).join("");
+
+  $("sales-table").innerHTML = rows;
+  $("sales-empty").classList.toggle("hidden", state.sales.length > 0);
+
+  $("recent-sales").innerHTML = state.sales.length
+    ? `<div class="table-wrap"><table><thead><tr><th>Product</th><th>Total</th><th>Payment</th></tr></thead><tbody>${
+        state.sales.slice(0, 5).map(sale => `
+          <tr><td>${escapeHTML(sale.productName)} × ${sale.quantity}</td>
+          <td>${money(sale.total)}</td><td>${escapeHTML(sale.payment)}</td></tr>
+        `).join("")
+      }</tbody></table></div>`
+    : "No sales recorded yet. Record your first sale to see it here.";
+}
+
+function renderDashboard() {
+  const totalSales = state.sales.reduce((sum, sale) => sum + sale.total, 0);
+  const stockCount = state.products.reduce((sum, product) => sum + product.stock, 0);
+  const lowStock = state.products.filter(
+    product => product.stock <= state.lowStockThreshold
+  );
+
+  $("total-sales").textContent = money(totalSales);
+  $("product-count").textContent = state.products.length;
+  $("stock-count").textContent = stockCount;
+  $("low-stock-count").textContent = lowStock.length;
+
+  $("stock-alerts").innerHTML = lowStock.length
+    ? lowStock.map(product => `
+        <div style="display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid #29293b">
+          <span>${escapeHTML(product.name)}</span>
+          <span class="stock-pill low">${product.stock} left</span>
+        </div>
+      `).join("")
+    : "No low-stock products. Add products to start tracking your inventory.";
+}
+
+function render() {
+  renderDashboard();
+  renderProducts();
+  renderSaleOptions();
+  renderSales();
+}
+
+
+const thresholdInput = $("low-stock-threshold");
+const saveSettingsButton = $("save-stock-settings");
+
+thresholdInput.value = state.lowStockThreshold;
+
+saveSettingsButton.addEventListener("click", () => {
+  const raw = thresholdInput.value;
+  const threshold = Number(raw);
+
+  if (raw.trim() === "" || !Number.isInteger(threshold) ||
+      threshold < 0 || threshold > 1000000) {
+    showToast("Enter a whole number from 0 to 1,000,000.");
+    thresholdInput.value = state.lowStockThreshold;
+    return;
+  }
+
+  const previous = state.lowStockThreshold;
+  state.lowStockThreshold = threshold;
+
+  if (!saveState()) {
+    state.lowStockThreshold = previous;
+    thresholdInput.value = previous;
+    return;
+  }
+
+  renderDashboard();
+  showToast("Stock settings saved.");
+});
+
+render();
+EOF

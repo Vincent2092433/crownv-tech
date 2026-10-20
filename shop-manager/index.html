@@ -1,0 +1,115 @@
+cat > index.html <<'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0b12">
+  <title>CrownV Shop Manager</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-icon">C</span><span>CrownV <small>SHOP MANAGER</small></span></div>
+    <nav>
+      <button class="nav-link active" data-page="dashboard">▦ Dashboard</button>
+      <button class="nav-link" data-page="products">▣ Products & Stock</button>
+      <button class="nav-link" data-page="sales">↗ Sales & Orders</button>
+    </nav>
+    <div class="sidebar-bottom">CrownV Tech<br><small>Shop management made simple</small></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">SHOP MANAGEMENT</p>
+        <h1 id="page-title">Dashboard</h1>
+      </div>
+      <div class="top-actions">
+        <span class="status"><span></span> Local mode</span>
+        <button class="primary" id="quick-add">+ Add product</button>
+      </div>
+    </header>
+
+    <section id="dashboard-page" class="page">
+      <div class="welcome">
+        <div><p class="eyebrow">YOUR BUSINESS AT A GLANCE</p><h2>Welcome to your shop.</h2><p>Track your products, sales and stock in one place.</p></div>
+        <div class="welcome-mark">CV</div>
+      </div>
+
+      <div class="stats">
+        <article class="stat-card"><p>Total sales</p><h2 id="total-sales">KSh 0.00</h2><small>Recorded sales</small></article>
+        <article class="stat-card"><p>Products</p><h2 id="product-count">0</h2><small>Products in catalogue</small></article>
+        <article class="stat-card"><p>Stock units</p><h2 id="stock-count">0</h2><small>Units currently available</small></article>
+        <article class="stat-card warning-card"><p>Low stock</p><h2 id="low-stock-count">0</h2><small>Products with 5 or fewer units</small></article>
+      </div>
+
+      <div class="content-grid">
+        <section class="panel">
+          <div class="panel-heading"><div><h3>Recent sales</h3><p>Your latest transactions</p></div><button class="text-button" data-go="sales">View all →</button></div>
+          <div id="recent-sales" class="empty-state">No sales recorded yet. Record your first sale to see it here.</div>
+        </section>
+        <section class="panel">
+          <div class="panel-heading"><div><h3>Stock settings</h3><p>Choose when a product needs restocking</p></div></div>
+          <label for="low-stock-threshold">Low-stock alert threshold</label>
+          <div class="form-grid">
+            <input id="low-stock-threshold" type="number" min="0" max="1000000" step="1" value="5">
+            <button class="primary" id="save-stock-settings" type="button">Save setting</button>
+          </div>
+          <p class="note">Products at or below this quantity will trigger an alert.</p>
+        </section>
+        <section class="panel">
+          <div class="panel-heading"><div><h3>Stock alerts</h3><p>Items that need attention</p></div></div>
+          <div id="stock-alerts" class="empty-state">Your stock alerts will appear here.</div>
+        </section>
+      </div>
+    </section>
+
+    <section id="products-page" class="page hidden">
+      <div class="panel">
+        <div class="panel-heading"><div><h3>Product catalogue</h3><p>Manage your clothing and accessories</p></div><button class="primary" id="add-product">+ Add product</button></div>
+        <input id="product-search" class="search" type="search" placeholder="Search products by name or category...">
+        <div class="table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Action</th></tr></thead><tbody id="products-table"></tbody></table></div>
+        <div id="products-empty" class="empty-state">No products yet. Add your first product above.</div>
+      </div>
+    </section>
+
+    <section id="sales-page" class="page hidden">
+      <div class="panel">
+        <div class="panel-heading"><div><h3>Record a sale</h3><p>Select a product and quantity to record a transaction</p></div></div>
+        <form id="sale-form" class="form-grid">
+          <label>Product<select id="sale-product" required><option value="">Select a product</option></select></label>
+          <label>Quantity<input id="sale-quantity" type="number" min="1" step="1" value="1" required></label>
+          <label>Payment method<select id="sale-payment"><option>Cash</option><option>Mobile Money</option><option>Card</option><option>Bank Transfer</option><option>Credit / Unpaid</option></select></label>
+          <div class="form-action"><button class="primary" type="submit">Record sale</button></div>
+        </form>
+        <p class="note">Recording a sale automatically reduces available stock.</p>
+      </div>
+      <div class="panel sales-panel">
+        <div class="panel-heading"><div><h3>Sales history</h3><p>Transactions recorded on this device</p></div></div>
+        <div class="table-wrap"><table><thead><tr><th>Date</th><th>Product</th><th>Quantity</th><th>Total</th><th>Payment</th></tr></thead><tbody id="sales-table"></tbody></table></div>
+        <div id="sales-empty" class="empty-state">No transactions yet.</div>
+      </div>
+    </section>
+
+    <footer>© 2026 CrownV Tech <span>Built for growing businesses.</span></footer>
+  </main>
+
+  <dialog id="product-dialog">
+    <form id="product-form">
+      <div class="dialog-heading"><div><p class="eyebrow">PRODUCT CATALOGUE</p><h2 id="dialog-title">Add product</h2></div><button type="button" class="close-button" id="close-dialog" aria-label="Close">✕</button></div>
+      <label>Product name<input id="product-name" maxlength="80" placeholder="e.g. Classic T-shirt" required></label>
+      <label>Category<select id="product-category"><option>Clothing</option><option>Shoes</option><option>Accessories</option><option>Bags</option><option>Other</option></select></label>
+      <div class="form-grid two-col">
+        <label>Price (KES)<input id="product-price" type="number" min="0.01" max="100000000" step="0.01" placeholder="e.g. 1200" required></label>
+        <label>Opening stock<input id="product-stock" type="number" min="0" max="1000000" step="1" placeholder="e.g. 20" required></label>
+      </div>
+      <p class="form-error" id="product-error" role="alert"></p>
+      <div class="dialog-actions"><button type="button" class="secondary" id="cancel-dialog">Cancel</button><button class="primary" type="submit">Save product</button></div>
+    </form>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
+EOF
